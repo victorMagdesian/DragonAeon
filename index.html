@@ -16,66 +16,94 @@
       background: #fdf6e3;
       color: #3e2723;
       display: flex;
+      flex-direction: column;
       min-height: 100vh;
     }
     header {
-      width: 100%;
       background: linear-gradient(135deg, #6d4c41, #8d6e63);
       color: #fff;
       padding: 20px;
       text-align: center;
       font-size: 2em;
-      /* Simula o contorno de um escudo */
       border-bottom: 4px solid #4e342e;
       box-shadow: 0 2px 5px rgba(0,0,0,0.5);
     }
-    .container {
-      display: flex;
-      flex: 1;
-    }
-    /* Área fixa com o conteúdo do documento (META) */
-    aside.meta {
-      width: 30%;
-      background: #fff8e1;
+    /* Container do Escudo */
+    .shield {
+      background: linear-gradient(135deg, #8d6e63, #a1887f);
+      border: 4px solid #4e342e;
+      /* Border-radius com efeito "escudo" */
+      border-radius: 0 0 50% 50% / 0 0 20% 20%;
+      margin: 20px;
       padding: 20px;
-      border-right: 2px solid #d7ccc8;
-      overflow-y: auto;
-      /* fixo na tela */
-      position: sticky;
-      top: 0;
-      height: 100vh;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      color: #fff;
     }
-    aside.meta pre {
+    .shield .dice-container,
+    .shield .fixed-content {
+      width: 48%;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 8px;
+    }
+    /* Área de dados (à esquerda) */
+    .dice-container h2 {
+      font-size: 1.5em;
+      margin-bottom: 10px;
+    }
+    .dice-container label {
+      font-size: 1em;
+    }
+    .dice-container select, 
+    .dice-container button {
+      padding: 8px;
+      font-size: 1em;
+      margin: 5px 0;
+    }
+    .dice-container .dice-result {
+      margin-top: 10px;
+      font-size: 2em;
+      font-weight: bold;
+      text-align: center;
+      min-height: 50px;
+      line-height: 50px;
+    }
+    /* Animação de rolagem de dados */
+    @keyframes roll {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .dice-result.rolling {
+      animation: roll 1s ease-in-out;
+    }
+    /* Área de conteúdo fixado (à direita) */
+    .fixed-content {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .fixed-content pre {
       white-space: pre-wrap;
       font-size: 0.9em;
       line-height: 1.4;
     }
-    /* Área central para as aventuras */
-    main.adventure {
+    /* Seção de Aventuras ampliada abaixo do escudo */
+    .adventures {
       flex: 1;
-      padding: 30px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-    #adventure-content {
+      padding: 20px;
+      margin: 0 20px 20px;
       background: #fff;
       border: 2px solid #8d6e63;
       border-radius: 8px;
-      padding: 20px;
-      width: 100%;
-      max-width: 800px;
-      margin-bottom: 20px;
       box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
       overflow-y: auto;
-      max-height: 70vh;
+      max-height: 60vh;
     }
     .nav {
       display: flex;
-      justify-content: space-between;
-      width: 100%;
-      max-width: 800px;
+      justify-content: center;
+      margin-top: 10px;
     }
     .nav button {
       background: #6d4c41;
@@ -86,6 +114,7 @@
       cursor: pointer;
       border-radius: 4px;
       transition: background 0.3s;
+      margin: 0 5px;
     }
     .nav button:hover {
       background: #5d4037;
@@ -100,8 +129,27 @@
   <header>
     Escudo do Mestre
   </header>
-  <div class="container">
-    <aside class="meta">
+  
+  <!-- Escudo contendo os dados e o conteúdo fixado -->
+  <div class="shield">
+    <!-- Dados (rolagem de dados) à esquerda -->
+    <div class="dice-container">
+      <h2>Rolagem de Dados</h2>
+      <label for="dice-select">Selecione o dado:</label>
+      <select id="dice-select">
+        <option value="4">d4</option>
+        <option value="6" selected>d6</option>
+        <option value="8">d8</option>
+        <option value="10">d10</option>
+        <option value="12">d12</option>
+        <option value="20">d20</option>
+      </select>
+      <br>
+      <button id="roll-button">Rolar</button>
+      <div class="dice-result" id="dice-result">-</div>
+    </div>
+    <!-- Conteúdo fixado (METAs) à direita -->
+    <div class="fixed-content">
       <pre>
 [META: CONCEITO CENTRAL] 
 Tarefa 1: Definir o Conceito Central
@@ -161,24 +209,43 @@ Flexibilidade:
 [META: INÍCIO DA NARRATIVA]
 Tarefa 7: Cena de Abertura para os Jogadores
   Imagine uma cena em que o crepúsculo tinge o céu de vermelho e a terra treme. No silêncio que antecede o caos, um rugido ancestral ecoa pelas montanhas:
-
   "Quando os dragões despertam, os destinos se entrelaçam e o mundo renasce – ou perece – sob seu olhar imortal."
-
-  Esta cena inicial serve para situar os jogadores no epicentro de um conflito milenar, onde cada decisão pode alterar o curso da história.
       </pre>
-    </aside>
-    <main class="adventure">
-      <div id="adventure-content">
-        <!-- O conteúdo da aventura será carregado aqui -->
-      </div>
-      <div class="nav">
-        <button id="prev">Anterior</button>
-        <button id="next">Próximo</button>
-      </div>
-    </main>
+    </div>
   </div>
+
+  <!-- Seção de Aventuras Ampliadas -->
+  <div class="adventures">
+    <div id="adventure-content">
+      <!-- Conteúdo da aventura -->
+    </div>
+    <div class="nav">
+      <button id="prev">Anterior</button>
+      <button id="next">Próximo</button>
+    </div>
+  </div>
+
   <script>
-    // Definindo os textos das aventuras usando template literals
+    // Função para rolar o dado
+    function rollDice(max) {
+      return Math.floor(Math.random() * max) + 1;
+    }
+
+    const rollButton = document.getElementById('roll-button');
+    const diceSelect = document.getElementById('dice-select');
+    const diceResult = document.getElementById('dice-result');
+
+    rollButton.addEventListener('click', () => {
+      const max = parseInt(diceSelect.value);
+      diceResult.classList.add('rolling');
+      setTimeout(() => {
+        const result = rollDice(max);
+        diceResult.textContent = result;
+        diceResult.classList.remove('rolling');
+      }, 1000); // duração da animação
+    });
+
+    // Aventuras
     const adventures = [
 `Aventura 1
 
@@ -288,7 +355,7 @@ As palavras pulsantes, quase místicas, sugerem que os elementos naturais são a
       }
     });
 
-    // Carrega a primeira aventura ao iniciar
+    // Inicializa com a primeira aventura
     updateAdventure();
   </script>
 </body>

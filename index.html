@@ -145,7 +145,7 @@
       font-size: 0.9em;
       line-height: 1.4;
     }
-    /* Seção de Aventuras ampliadas abaixo do escudo */
+    /* Seção de Aventuras ampliada abaixo do escudo */
     .adventures {
       flex: 1;
       padding: 20px;
@@ -179,6 +179,53 @@
     .nav button:disabled {
       background: #bdbdbd;
       cursor: not-allowed;
+    }
+
+    /* =========================================
+       RESPONSIVIDADE (Mobile First)
+       ========================================= */
+    @media (max-width: 768px) {
+      header {
+        font-size: 1.6em;
+        padding: 15px;
+      }
+      .shield {
+        flex-direction: column;
+        border-radius: 0 0 20% 20%;
+        margin: 10px;
+        padding: 15px;
+      }
+      .shield .dice-container,
+      .shield .fixed-content {
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      /* Reduz um pouco o tamanho do dado em telas menores */
+      #dice-display {
+        height: 100px;
+      }
+      .dice-d6, .dice-d4, .dice-flip {
+        width: 80px;
+        height: 80px;
+      }
+      .dice-d6 .face {
+        width: 80px;
+        height: 80px;
+        font-size: 1.5em;
+      }
+      .dice-d4 .face {
+        border-left: 40px solid transparent;
+        border-right: 40px solid transparent;
+        border-bottom: 69.28px solid var(--dice-color);
+        font-size: 1.2em;
+      }
+      .dice-flip {
+        font-size: 1.5em;
+      }
+      .adventures {
+        margin: 0 10px 10px;
+        max-height: none; /* permite rolagem livre */
+      }
     }
   </style>
 </head>

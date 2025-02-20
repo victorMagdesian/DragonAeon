@@ -28,11 +28,10 @@
       border-bottom: 4px solid #4e342e;
       box-shadow: 0 2px 5px rgba(0,0,0,0.5);
     }
-    /* Container do Escudo */
+    /* Escudo com os dados e o conteúdo fixado */
     .shield {
       background: linear-gradient(135deg, #8d6e63, #a1887f);
       border: 4px solid #4e342e;
-      /* Border-radius com efeito "escudo" */
       border-radius: 0 0 50% 50% / 0 0 20% 20%;
       margin: 20px;
       padding: 20px;
@@ -48,7 +47,7 @@
       padding: 15px;
       border-radius: 8px;
     }
-    /* Área de dados (à esquerda) */
+    /* Dados – área à esquerda */
     .dice-container h2 {
       font-size: 1.5em;
       margin-bottom: 10px;
@@ -62,7 +61,37 @@
       font-size: 1em;
       margin: 5px 0;
     }
-    .dice-container .dice-result {
+    /* 3D Dado para d6 */
+    .dice-3d {
+      width: 100px;
+      height: 100px;
+      margin: 20px auto;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(0deg) rotateY(0deg);
+      transition: transform 1s ease-out;
+    }
+    .dice-3d .face {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: #fff;
+      border: 2px solid #3e2723;
+      font-size: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    /* Posicionamento das faces do dado */
+    .face1 { transform: rotateY(0deg) translateZ(50px); }
+    .face2 { transform: rotateY(90deg) translateZ(50px); }
+    .face3 { transform: rotateX(90deg) translateZ(50px); }
+    .face4 { transform: rotateX(-90deg) translateZ(50px); }
+    .face5 { transform: rotateY(-90deg) translateZ(50px); }
+    .face6 { transform: rotateY(180deg) translateZ(50px); }
+    /* Fallback para outros dados: texto com animação simples */
+    .dice-result {
       margin-top: 10px;
       font-size: 2em;
       font-weight: bold;
@@ -70,15 +99,15 @@
       min-height: 50px;
       line-height: 50px;
     }
-    /* Animação de rolagem de dados */
-    @keyframes roll {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .rolling {
+      animation: textRoll 1s ease-in-out;
     }
-    .dice-result.rolling {
-      animation: roll 1s ease-in-out;
+    @keyframes textRoll {
+      0% { opacity: 0.2; }
+      50% { opacity: 1; }
+      100% { opacity: 0.2; }
     }
-    /* Área de conteúdo fixado (à direita) */
+    /* Conteúdo fixado – área à direita */
     .fixed-content {
       max-height: 300px;
       overflow-y: auto;
@@ -130,9 +159,9 @@
     Escudo do Mestre
   </header>
   
-  <!-- Escudo contendo os dados e o conteúdo fixado -->
+  <!-- Escudo com dados e conteúdo fixado -->
   <div class="shield">
-    <!-- Dados (rolagem de dados) à esquerda -->
+    <!-- Dados (à esquerda) -->
     <div class="dice-container">
       <h2>Rolagem de Dados</h2>
       <label for="dice-select">Selecione o dado:</label>
@@ -146,9 +175,19 @@
       </select>
       <br>
       <button id="roll-button">Rolar</button>
-      <div class="dice-result" id="dice-result">-</div>
+      <!-- Elemento 3D para dado (exibido apenas para d6) -->
+      <div id="dice-3d" class="dice-3d">
+        <div class="face face1">1</div>
+        <div class="face face2">2</div>
+        <div class="face face3">3</div>
+        <div class="face face4">4</div>
+        <div class="face face5">5</div>
+        <div class="face face6">6</div>
+      </div>
+      <!-- Fallback: resultado textual para dados que não sejam d6 -->
+      <div class="dice-result" id="dice-result" style="display: none;">-</div>
     </div>
-    <!-- Conteúdo fixado (METAs) à direita -->
+    <!-- Conteúdo fixado (METAs) – à direita -->
     <div class="fixed-content">
       <pre>
 [META: CONCEITO CENTRAL] 
@@ -214,7 +253,7 @@ Tarefa 7: Cena de Abertura para os Jogadores
     </div>
   </div>
 
-  <!-- Seção de Aventuras Ampliadas -->
+  <!-- Seção de Aventuras ampliadas -->
   <div class="adventures">
     <div id="adventure-content">
       <!-- Conteúdo da aventura -->
@@ -226,26 +265,60 @@ Tarefa 7: Cena de Abertura para os Jogadores
   </div>
 
   <script>
-    // Função para rolar o dado
+    // Função para rolar um dado de "max" lados
     function rollDice(max) {
       return Math.floor(Math.random() * max) + 1;
     }
-
+    
     const rollButton = document.getElementById('roll-button');
     const diceSelect = document.getElementById('dice-select');
-    const diceResult = document.getElementById('dice-result');
+    // Elementos para dado 3D (d6) e fallback textual
+    const dice3d = document.getElementById('dice-3d');
+    const diceText = document.getElementById('dice-result');
 
     rollButton.addEventListener('click', () => {
-      const max = parseInt(diceSelect.value);
-      diceResult.classList.add('rolling');
-      setTimeout(() => {
-        const result = rollDice(max);
-        diceResult.textContent = result;
-        diceResult.classList.remove('rolling');
-      }, 1000); // duração da animação
+      const diceType = diceSelect.value;
+      if (diceType === "6") {
+        // Exibe o dado 3D e oculta o fallback
+        dice3d.style.display = 'block';
+        diceText.style.display = 'none';
+        // Realiza rolagem com animação 3D
+        const result = rollDice(6);
+        // Aplica um giro aleatório para "iniciar" o movimento
+        dice3d.style.transition = 'none';
+        const randomX = Math.floor(Math.random() * 360) + 720; // Mínimo 720º
+        const randomY = Math.floor(Math.random() * 360) + 720;
+        dice3d.style.transform = `rotateX(${randomX}deg) rotateY(${randomY}deg)`;
+        // Força reflow para que a animação inicie
+        dice3d.offsetWidth;
+        // Mapeia o resultado final para a orientação correta do dado
+        let finalX, finalY;
+        switch(result) {
+          case 1: finalX = 0;   finalY = 0;    break;
+          case 2: finalX = 0;   finalY = -90;  break;
+          case 3: finalX = 90;  finalY = 0;    break;
+          case 4: finalX = -90; finalY = 0;    break;
+          case 5: finalX = 0;   finalY = 90;   break;
+          case 6: finalX = 180; finalY = 0;    break;
+        }
+        // Adiciona giros extras para efeito dramático e define a rotação final
+        const extraSpins = 1080;
+        dice3d.style.transition = 'transform 1s ease-out';
+        dice3d.style.transform = `rotateX(${extraSpins + finalX}deg) rotateY(${extraSpins + finalY}deg)`;
+      } else {
+        // Para dados que não sejam d6, utiliza o fallback de texto
+        dice3d.style.display = 'none';
+        diceText.style.display = 'block';
+        diceText.classList.add('rolling');
+        setTimeout(() => {
+          const result = rollDice(parseInt(diceType));
+          diceText.textContent = result;
+          diceText.classList.remove('rolling');
+        }, 1000);
+      }
     });
 
-    // Aventuras
+    // Aventuras ampliadas
     const adventures = [
 `Aventura 1
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Escudo do Mestre - RPG</title>
+  <title>Escudo do Mestre - Rolagem de Dados</title>
   <style>
     /* Reset básico */
     * {
@@ -28,7 +28,7 @@
       border-bottom: 4px solid #4e342e;
       box-shadow: 0 2px 5px rgba(0,0,0,0.5);
     }
-    /* Escudo com os dados e o conteúdo fixado */
+    /* Área do Escudo */
     .shield {
       background: linear-gradient(135deg, #8d6e63, #a1887f);
       border: 4px solid #4e342e;
@@ -61,51 +61,79 @@
       font-size: 1em;
       margin: 5px 0;
     }
-    /* 3D Dado para d6 */
-    .dice-3d {
+    /* Container que receberá o dado 3D gerado dinamicamente */
+    #dice-display {
+      margin-top: 15px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 600px;
+    }
+    /* d6 – Cubo */
+    .dice-d6 {
       width: 100px;
       height: 100px;
-      margin: 20px auto;
       position: relative;
       transform-style: preserve-3d;
-      transform: rotateX(0deg) rotateY(0deg);
       transition: transform 1s ease-out;
     }
-    .dice-3d .face {
+    .dice-d6 .face {
       position: absolute;
       width: 100px;
       height: 100px;
-      background: #fff;
+      background: var(--dice-color);
       border: 2px solid #3e2723;
       font-size: 2em;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
+      color: #fff;
     }
-    /* Posicionamento das faces do dado */
-    .face1 { transform: rotateY(0deg) translateZ(50px); }
-    .face2 { transform: rotateY(90deg) translateZ(50px); }
-    .face3 { transform: rotateX(90deg) translateZ(50px); }
-    .face4 { transform: rotateX(-90deg) translateZ(50px); }
-    .face5 { transform: rotateY(-90deg) translateZ(50px); }
-    .face6 { transform: rotateY(180deg) translateZ(50px); }
-    /* Fallback para outros dados: texto com animação simples */
-    .dice-result {
-      margin-top: 10px;
+    .dice-d6 .face1 { transform: rotateY(0deg) translateZ(50px); }
+    .dice-d6 .face2 { transform: rotateY(90deg) translateZ(50px); }
+    .dice-d6 .face3 { transform: rotateX(90deg) translateZ(50px); }
+    .dice-d6 .face4 { transform: rotateX(-90deg) translateZ(50px); }
+    .dice-d6 .face5 { transform: rotateY(-90deg) translateZ(50px); }
+    .dice-d6 .face6 { transform: rotateY(180deg) translateZ(50px); }
+    /* d4 – Tetraedro (aproximado) */
+    .dice-d4 {
+      width: 100px;
+      height: 100px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s ease-out;
+    }
+    .dice-d4 .face {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-left: 50px solid transparent;
+      border-right: 50px solid transparent;
+      border-bottom: 86.6px solid var(--dice-color);
+      font-size: 1.5em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    /* Posições aproximadas para os 4 lados do tetraedro */
+    .dice-d4 .face1 { transform: rotateY(0deg) translateZ(30px); }
+    .dice-d4 .face2 { transform: rotateY(120deg) translateZ(30px); }
+    .dice-d4 .face3 { transform: rotateY(240deg) translateZ(30px); }
+    .dice-d4 .face4 { transform: rotateX(90deg) translateZ(30px); }
+    /* Dados “flip” para d8, d10, d12 e d20 – efeito 2D com rotação */
+    .dice-flip {
+      width: 100px;
+      height: 100px;
+      background: var(--dice-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 2em;
-      font-weight: bold;
-      text-align: center;
-      min-height: 50px;
-      line-height: 50px;
-    }
-    .rolling {
-      animation: textRoll 1s ease-in-out;
-    }
-    @keyframes textRoll {
-      0% { opacity: 0.2; }
-      50% { opacity: 1; }
-      100% { opacity: 0.2; }
+      color: #fff;
+      transition: transform 1s ease-out;
     }
     /* Conteúdo fixado – área à direita */
     .fixed-content {
@@ -117,7 +145,7 @@
       font-size: 0.9em;
       line-height: 1.4;
     }
-    /* Seção de Aventuras ampliada abaixo do escudo */
+    /* Seção de Aventuras ampliadas abaixo do escudo */
     .adventures {
       flex: 1;
       padding: 20px;
@@ -159,9 +187,9 @@
     Escudo do Mestre
   </header>
   
-  <!-- Escudo com dados e conteúdo fixado -->
+  <!-- Escudo contendo dados e conteúdo fixado -->
   <div class="shield">
-    <!-- Dados (à esquerda) -->
+    <!-- Dados – área à esquerda -->
     <div class="dice-container">
       <h2>Rolagem de Dados</h2>
       <label for="dice-select">Selecione o dado:</label>
@@ -175,19 +203,10 @@
       </select>
       <br>
       <button id="roll-button">Rolar</button>
-      <!-- Elemento 3D para dado (exibido apenas para d6) -->
-      <div id="dice-3d" class="dice-3d">
-        <div class="face face1">1</div>
-        <div class="face face2">2</div>
-        <div class="face face3">3</div>
-        <div class="face face4">4</div>
-        <div class="face face5">5</div>
-        <div class="face face6">6</div>
-      </div>
-      <!-- Fallback: resultado textual para dados que não sejam d6 -->
-      <div class="dice-result" id="dice-result" style="display: none;">-</div>
+      <!-- Área onde o dado 3D será inserido -->
+      <div id="dice-display"></div>
     </div>
-    <!-- Conteúdo fixado (METAs) – à direita -->
+    <!-- Conteúdo fixado – área à direita -->
     <div class="fixed-content">
       <pre>
 [META: CONCEITO CENTRAL] 
@@ -252,7 +271,7 @@ Tarefa 7: Cena de Abertura para os Jogadores
       </pre>
     </div>
   </div>
-
+  
   <!-- Seção de Aventuras ampliadas -->
   <div class="adventures">
     <div id="adventure-content">
@@ -263,62 +282,116 @@ Tarefa 7: Cena de Abertura para os Jogadores
       <button id="next">Próximo</button>
     </div>
   </div>
-
+  
   <script>
-    // Função para rolar um dado de "max" lados
+    // Mapeamento de cores para cada tipo de dado
+    const diceColors = {
+      "4": "#e74c3c",   // vermelho
+      "6": "#3498db",   // azul
+      "8": "#2ecc71",   // verde
+      "10": "#9b59b6",  // roxo
+      "12": "#e67e22",  // laranja
+      "20": "#1abc9c"   // turquesa
+    };
+
+    // Função para gerar o markup do dado conforme o tipo
+    function generateDiceMarkup(diceType) {
+      const color = diceColors[diceType];
+      if (diceType === "4") {
+        return `<div id="dice" class="dice-d4" style="--dice-color: ${color};">
+                  <div class="face face1">1</div>
+                  <div class="face face2">2</div>
+                  <div class="face face3">3</div>
+                  <div class="face face4">4</div>
+                </div>`;
+      } else if (diceType === "6") {
+        return `<div id="dice" class="dice-d6" style="--dice-color: ${color};">
+                  <div class="face face1">1</div>
+                  <div class="face face2">2</div>
+                  <div class="face face3">3</div>
+                  <div class="face face4">4</div>
+                  <div class="face face5">5</div>
+                  <div class="face face6">6</div>
+                </div>`;
+      } else {
+        // Para d8, d10, d12 e d20 usamos um efeito "flip" (simulação 2D)
+        return `<div id="dice" class="dice-flip" style="--dice-color: ${color};">-</div>`;
+      }
+    }
+
+    // Função para rolar o dado
     function rollDice(max) {
       return Math.floor(Math.random() * max) + 1;
     }
-    
+
     const rollButton = document.getElementById('roll-button');
     const diceSelect = document.getElementById('dice-select');
-    // Elementos para dado 3D (d6) e fallback textual
-    const dice3d = document.getElementById('dice-3d');
-    const diceText = document.getElementById('dice-result');
+    const diceDisplay = document.getElementById('dice-display');
 
     rollButton.addEventListener('click', () => {
       const diceType = diceSelect.value;
+      // Remove o dado anterior (se houver) e insere o novo markup
+      diceDisplay.innerHTML = generateDiceMarkup(diceType);
+      const dice = document.getElementById('dice');
+      const maxVal = parseInt(diceType);
+      const result = rollDice(maxVal);
+      const extraSpins = 1080; // graus extras para efeito dramático
+
+      // Para dados d4 e d6 (polyedros 3D reais)
       if (diceType === "6") {
-        // Exibe o dado 3D e oculta o fallback
-        dice3d.style.display = 'block';
-        diceText.style.display = 'none';
-        // Realiza rolagem com animação 3D
-        const result = rollDice(6);
-        // Aplica um giro aleatório para "iniciar" o movimento
-        dice3d.style.transition = 'none';
-        const randomX = Math.floor(Math.random() * 360) + 720; // Mínimo 720º
+        // Inicia com rotações aleatórias
+        dice.style.transition = 'none';
+        const randomX = Math.floor(Math.random() * 360) + 720;
         const randomY = Math.floor(Math.random() * 360) + 720;
-        dice3d.style.transform = `rotateX(${randomX}deg) rotateY(${randomY}deg)`;
-        // Força reflow para que a animação inicie
-        dice3d.offsetWidth;
-        // Mapeia o resultado final para a orientação correta do dado
-        let finalX, finalY;
+        dice.style.transform = `rotateX(${randomX}deg) rotateY(${randomY}deg)`;
+        // Força reflow
+        dice.offsetWidth;
+        // Define rotações finais conforme o resultado
+        let finalX = 0, finalY = 0;
         switch(result) {
-          case 1: finalX = 0;   finalY = 0;    break;
-          case 2: finalX = 0;   finalY = -90;  break;
-          case 3: finalX = 90;  finalY = 0;    break;
-          case 4: finalX = -90; finalY = 0;    break;
-          case 5: finalX = 0;   finalY = 90;   break;
-          case 6: finalX = 180; finalY = 0;    break;
+          case 1: finalX = 0;    finalY = 0;    break;
+          case 2: finalX = 0;    finalY = -90;  break;
+          case 3: finalX = 90;   finalY = 0;    break;
+          case 4: finalX = -90;  finalY = 0;    break;
+          case 5: finalX = 0;    finalY = 90;   break;
+          case 6: finalX = 180;  finalY = 0;    break;
         }
-        // Adiciona giros extras para efeito dramático e define a rotação final
-        const extraSpins = 1080;
-        dice3d.style.transition = 'transform 1s ease-out';
-        dice3d.style.transform = `rotateX(${extraSpins + finalX}deg) rotateY(${extraSpins + finalY}deg)`;
+        dice.style.transition = 'transform 1s ease-out';
+        dice.style.transform = `rotateX(${extraSpins + finalX}deg) rotateY(${extraSpins + finalY}deg)`;
+      } else if (diceType === "4") {
+        // Para o tetraedro
+        dice.style.transition = 'none';
+        const randomX = Math.floor(Math.random() * 360) + 720;
+        const randomY = Math.floor(Math.random() * 360) + 720;
+        dice.style.transform = `rotateX(${randomX}deg) rotateY(${randomY}deg)`;
+        dice.offsetWidth;
+        let finalX = 0, finalY = 0;
+        switch(result) {
+          case 1: finalX = 0;    finalY = 0;    break;
+          case 2: finalX = 0;    finalY = 120;  break;
+          case 3: finalX = 0;    finalY = 240;  break;
+          case 4: finalX = 90;   finalY = 0;    break;
+        }
+        dice.style.transition = 'transform 1s ease-out';
+        dice.style.transform = `rotateX(${extraSpins + finalX}deg) rotateY(${extraSpins + finalY}deg)`;
       } else {
-        // Para dados que não sejam d6, utiliza o fallback de texto
-        dice3d.style.display = 'none';
-        diceText.style.display = 'block';
-        diceText.classList.add('rolling');
+        // Para d8, d10, d12 e d20 – efeito flip simples
+        dice.style.transition = 'none';
+        dice.style.transform = 'rotateY(0deg)';
+        dice.innerText = '-';
+        dice.offsetWidth;
+        // Gera rotação final baseada no ângulo proporcional ao resultado
+        const anglePerFace = 360 / maxVal;
+        dice.style.transition = 'transform 1s ease-out';
+        dice.style.transform = `rotateY(${extraSpins + result * anglePerFace}deg)`;
+        // Após a animação, atualiza o texto com o resultado final
         setTimeout(() => {
-          const result = rollDice(parseInt(diceType));
-          diceText.textContent = result;
-          diceText.classList.remove('rolling');
+          dice.innerText = result;
         }, 1000);
       }
     });
 
-    // Aventuras ampliadas
+    // Aventuras ampliadas (sem alterações na lógica de navegação)
     const adventures = [
 `Aventura 1
 
